@@ -1,0 +1,120 @@
+  /* start from here */
+  @import url('https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+  .roboto{
+    font-family: "Roboto", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
+  }
+  *{
+    margin:0px;
+    padding:0px;
+    box-sizing: border-box;
+   
+  }
+  .container{
+    color:#e6d223;
+    background-image: url(/auth/wpbg.jpg);
+    background-repeat:no-repeat;
+    background-position: center; 
+    background-size:cover;
+    position: fixed;
+    height:100vh;
+    width:100vw;
+    min-width: 330px;
+    min-height:600px ;
+    display:flex;
+    align-items: center;
+    justify-content:center;
+  }
+  .box{
+    height:30em;
+    width:40em;
+    background-color: #00000079;
+    display:grid;
+    padding:3em;
+    border-radius: 3cap;
+    
+    
+  }
+  .password{
+    margin-top:10px;
+  }
+  .signup{
+    font-weight:700;
+    font-size: 3em;
+  }
+  .fordisplay{
+    display:grid;
+    margin-bottom:10px;
+    
+  }
+  .btn{
+    margin-top:20px;
+    display:grid;
+    grid-template-rows: max-content;
+  }
+  .button{
+    padding:10px;
+    font-size:1.3em;
+    border:none;
+    color:white;
+    background-color: #e6d223;
+    border-radius: 1cap;
+    
+  }
+  .email,.pswd{
+    border:2px rgb(66, 64, 64) solid; 
+    padding:4px;
+    color:white;
+    font-size: medium;
+    background-color: rgba(252, 252, 252, 0.274);
+    border-radius: 1cap;
+  }
+a{
+  font-size: 20px;
+  color:rgb(118, 206, 60);
+}
+button:hover{
+  cursor: pointer;
+}
+button:active{
+  transition:0.15s ease-in-out;
+  transform:scale(.99);
+}
+
+
+.alert{
+  color:red;
+  position:absolute;
+  width:350px;
+  height:250px;
+  border:7px solid rgb(212, 37, 24);
+  background-color:rgba(8, 8, 8, 0.822);
+  border-radius:2cap;
+  display:none;
+  align-items: end;
+  justify-content: center;
+  
+}
+.inAlert{
+  padding:20px;
+
+}
+.alertBtn{
+  color:rgb(255, 255, 255);
+  background-color: rgb(226, 43, 43);
+  border-color:red;
+  border-radius: 2cap;
+  margin:20px;
+  padding-top: .5em;;
+  padding-bottom: .5em;
+  padding-left:1.3em;
+  padding-right:1.3em;
+  font-size:15px;
+}
+
+
+

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskify Frontend</title>
+    <link rel="stylesheet" href="/auth/style.css">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- start writing code -->
+     <div class="container">
+        <div class="alert roboto ">
+            <label for="" class="inAlert"></label>
+            <button onclick=hide() class="alertBtn">okay</button>
+        </div>
+        <div class="box roboto">
+            <label class="signup ">Sign In</label>
+            <div class="username fordisplay">
+                <label for="">Email:</label>
+                <input type="email" class="email"></input>
+            </div>
+            <div class="password fordisplay">
+                <label for="">
+                    Password:
+                </label>
+                <input type="password" class="pswd"></input>
+            </div>
+            <div class="btn">
+                <button onclick=signin() class="button">Sign In</button>
+            </div>
+            <div class="signin">
+                <label for="">Dont have an account <a href="signup">sign up</a></label>
+            </div>
+        </div>
+     </div>
+    <script src="/auth/script.js"></script>    
+</body>
+</html>

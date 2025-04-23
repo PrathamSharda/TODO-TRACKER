@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO-LIST</title>
+    <link rel="stylesheet" href="todo/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+    
+   <div class="container">
+
+    <div class="title">
+
+    <h1 class="tite roboto-mono">TODO TRACKER</h1>
+    <button class="logout .roboto-mono"onclick="removeCookie()">logout</button>
+    </div>
+    <div class="headings">
+       
+        <div class="list ">
+            <div class="box">
+            <label for="text" class="sub roboto-mono">ADD</label>
+            
+        </div>
+        <textarea type="text" class="addingValue roboto-mono" placeholder="enter....."></textarea>
+        <button class="add .roboto-mono" onclick="addtask()">Add</button>
+       
+        </div>
+        <div class="todo ">
+            <div class="box">
+            <label for="text" class=" todosub sub roboto-mono">TO DO</label>
+            
+        </div>
+        <div class="btn">
+        <button class="add complete .roboto-mono" onclick="completeTodo()">completed</button>
+        <button class="add delete .roboto-mono" onclick="deletetaskButton()">delete</button>
+        </div>
+        <div class="tasks">
+            <ol class="taskcreate nstt roboto-mono">
+                
+
+
+            </ol>
+    </div>
+        
+        </div>
+
+        <div class="completed ">
+            <div class="box">
+            <label for="text" class="completesub roboto-mono">COMPLETED</label>
+            
+        </div>
+        <div class="btn">
+            <button class="add complete1 .roboto-mono" onclick="reverse()">reverse</button>
+            <button class="add delete1 .roboto-mono"onclick="deleteCompButton()">delete</button>
+            </div>
+        
+        <div class="completedTasks">
+            <ol class="listele stt roboto-mono">
+                
+
+            </ol>
+    </div>
+        
+        </div>
+     
+    </div>
+
+   </div>
+    
+    <script src="todo/main.js" >    
+    
+    </script>
+</body>
+</html>
+
+
