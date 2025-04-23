@@ -31,7 +31,7 @@ const mongoDB=process.env.mongoID;
 
 //middlewares
 
-mongoose.connect("mongodb+srv://prathamsharda8:Oaq3QWv0vN02fjDo@cluster0.d0rjxio.mongodb.net/todo", {
+mongoose.connect(mongoDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000 // Reduce timeout for faster error feedback
