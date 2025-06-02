@@ -3,76 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TODO-LIST</title>
-    <link rel="stylesheet" href="todo/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+    <title>Taskify - Your Tasks</title>
+    <link rel="stylesheet" href="/todo/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    
-   <div class="container">
-
-    <div class="title">
-
-    <h1 class="tite roboto-mono">TODO TRACKER</h1>
-    <button class="logout .roboto-mono"onclick="removeCookie()">logout</button>
+    <div class="alert">
+        <label class="alert-message"></label>
+        <button onclick="hideAlert()" class="alert-btn">OK</button>
     </div>
-    <div class="headings">
-       
-        <div class="list ">
-            <div class="box">
-            <label for="text" class="sub roboto-mono">ADD</label>
-            
-        </div>
-        <textarea type="text" class="addingValue roboto-mono" placeholder="enter....."></textarea>
-        <button class="add .roboto-mono" onclick="addtask()">Add</button>
-       
-        </div>
-        <div class="todo ">
-            <div class="box">
-            <label for="text" class=" todosub sub roboto-mono">TO DO</label>
-            
-        </div>
-        <div class="btn">
-        <button class="add complete .roboto-mono" onclick="completeTodo()">completed</button>
-        <button class="add delete .roboto-mono" onclick="deletetaskButton()">delete</button>
-        </div>
-        <div class="tasks">
-            <ol class="taskcreate nstt roboto-mono">
-                
 
-
-            </ol>
-    </div>
-        
-        </div>
-
-        <div class="completed ">
-            <div class="box">
-            <label for="text" class="completesub roboto-mono">COMPLETED</label>
-            
-        </div>
-        <div class="btn">
-            <button class="add complete1 .roboto-mono" onclick="reverse()">reverse</button>
-            <button class="add delete1 .roboto-mono"onclick="deleteCompButton()">delete</button>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="https://api.iconify.design/fluent:task-list-square-24-filled.svg?color=%23FF7A59" alt="Logo">
+                <span>Taskify</span>
             </div>
-        
-        <div class="completedTasks">
-            <ol class="listele stt roboto-mono">
-                
+            <button onclick="removeCookie()" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign Out
+            </button>
+        </header>
 
-            </ol>
-    </div>
-        
-        </div>
-     
+        <main class="main-content">
+            <div class="task-input-container">
+                <input type="text" class="task-input addingValue" placeholder="Add a new task...">
+                <button onclick="addtask()" class="btn-add">Add Task</button>
+            </div>
+
+            <div class="board">
+                <!-- Todo Column -->
+                <div class="board-column">
+                    <div class="column-header">
+                        <h2 class="column-title todosub">TO DO</h2>
+                        <div class="column-actions" style="display: none;">
+                            <button onclick="completeTodo()" class="task-btn btn-complete">Complete</button>
+                            <button onclick="deletetaskButton()" class="task-btn btn-delete">Delete</button>
+                        </div>
+                    </div>
+                    <div class="task-list taskcreate">
+                        <!-- Tasks will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Completed Column -->
+                <div class="board-column">
+                    <div class="column-header">
+                        <h2 class="column-title completesub">COMPLETED</h2>
+                        <div class="column-actions" style="display: none;">
+                            <button onclick="reverse()" class="task-btn btn-reverse">Reverse</button>
+                            <button onclick="deleteCompButton()" class="task-btn btn-delete">Delete</button>
+                        </div>
+                    </div>
+                    <div class="task-list listele">
+                        <!-- Completed tasks will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-   </div>
-    
-    <script src="todo/main.js" >    
-    
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/todo/main.js"></script>
 </body>
 </html>
 

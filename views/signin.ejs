@@ -3,38 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taskify Frontend</title>
+    <title>Taskify - Sign In</title>
     <link rel="stylesheet" href="/auth/style.css">
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <div class="container">
+        <div class="auth-card">
+            <div class="logo">
+                <img src="https://api.iconify.design/fluent:task-list-square-24-filled.svg?color=%23FF7A59" alt="Logo">
+                <span class="logo-text">Taskify</span>
+            </div>
+            
+            <div class="auth-header">
+                <h1 class="auth-title">Welcome back</h1>
+                <p class="auth-subtitle">Sign in to continue to your tasks</p>
+            </div>
 
-    <!-- start writing code -->
-     <div class="container">
-        <div class="alert roboto ">
-            <label for="" class="inAlert"></label>
-            <button onclick=hide() class="alertBtn">okay</button>
-        </div>
-        <div class="box roboto">
-            <label class="signup ">Sign In</label>
-            <div class="username fordisplay">
-                <label for="">Email:</label>
-                <input type="email" class="email"></input>
-            </div>
-            <div class="password fordisplay">
-                <label for="">
-                    Password:
-                </label>
-                <input type="password" class="pswd"></input>
-            </div>
-            <div class="btn">
-                <button onclick=signin() class="button">Sign In</button>
-            </div>
-            <div class="signin">
-                <label for="">Dont have an account <a href="signup">sign up</a></label>
+            <form onsubmit="event.preventDefault(); signin();">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email address</label>
+                    <input type="email" id="email" class="form-input email" placeholder="name@company.com" required>
+                    <div class="error-message">Please enter a valid email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input pswd" placeholder="••••••••" required>
+                    <div class="error-message">Please enter your password</div>
+                </div>
+
+                <button type="submit" class="auth-button">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="/" class="auth-link">Sign up</a>
             </div>
         </div>
-     </div>
-    <script src="/auth/script.js"></script>    
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/auth/script.js"></script>
 </body>
 </html>

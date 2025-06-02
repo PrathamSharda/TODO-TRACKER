@@ -3,355 +3,453 @@
 
 //  function that displays the number.of boxes selected;
 
-async function reload(){
-    try{
-    let message=await axios.get("http://localhost:3001/reload")
-    console.log(message.data.message);
-        const tasks=message.data.message;
-    for(let i=0;i<tasks.length;i++){
-        if(tasks[i].done!=="1")
-        addTask1(tasks[i].message);
-        else{
-            completedtask1(tasks[i].message);
-        }
-    }
-    
-}catch(error){
-    console.error("error has occured");
+// Utility functions
+function showAlert(message) {
+    const alert = document.querySelector('.alert');
+    const alertMessage = document.querySelector('.alert-message');
+    alertMessage.textContent = message;
+    alert.classList.add('show');
 }
-}
-reload();
-function ListeningTodo(){
-    const deleteBtn=document.querySelector('.delete');
-    const completeBtn=document.querySelector('.complete');
-    deleteBtn.style.display='block';
-    completeBtn.style.display='block';
-    const checkboxes=document.querySelectorAll(".taskcreate input[type=checkbox]");
-   const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-   const sub=document.querySelector('.todosub');
-   if (selectedBoxes.length==0){
-    sub.textContent="TO DO";
-    deleteBtn.style.display='none';
-    completeBtn.style.display='none';
-}else{
-    sub.textContent=`${selectedBoxes.length} Selected`;
-}
-    
-}
-//  adding tasks from the Add tab to the todo tab;
-document.querySelector(".addingValue").addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
 
-        event.preventDefault(); 
-        addtask(); 
-        
-    }
-});
-//for listenign todo checkbox
-document.querySelector(".taskcreate").addEventListener("click", (event) => {
-    if (event.target.matches("input[type=checkbox]")) {
-        ListeningTodo();
-        
-    }
-});
-//for listening completed checkbox
-document.querySelector(".listele").addEventListener("click", (event) => {
-    if (event.target.matches("input[type=checkbox]")) {
-        ListeningCompleted();
-    }
-});
-async function addtask(){
-    try{
-    const value=document.querySelector(".addingValue").value;
-    const empty=document.querySelector(".addingValue");
-    empty.value="";
-    const response=await axios.post('http://localhost:3001/add',{
-        value:value
-        
-    })
+function hideAlert() {
+    const alert = document.querySelector('.alert');
+    alert.classList.remove('show');
+}
 
-    console.log(response);
-    const div=document.createElement('li');
+function createTaskElement(value, isCompleted = false) {
+    const div = document.createElement('div');
+    div.className = `task-item ${isCompleted ? 'completed-task' : ''}`;
+    div.draggable = true;
+    
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    const label=document.createElement("label");
-    if(value==""){
-        alert("enter something");
-    }else{
-    label.textContent=value;
-    label.prepend(checkbox);
-    checkbox.onclick=ListeningTodo;
-    //checkbox.style.appearance='none';
-    checkbox.classList.add('forCheckbox')
-    div.appendChild(label);
-    const parent=document.querySelector(".taskcreate");
-    parent.appendChild(div);
+    checkbox.className = 'checkbox';
     
-    }
-}catch(error){
-    console.log("error canot store data in backend");
-}
-}
-function addTask1(value){
-
-    const div=document.createElement('li');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    const label=document.createElement("label");
-   
-    label.textContent=value;
-    label.prepend(checkbox);
-    checkbox.onclick=ListeningTodo;
-    //checkbox.style.appearance='none';
-    checkbox.classList.add('forCheckbox')
+    const label = document.createElement('span');
+    label.className = `task-text ${isCompleted ? 'completed' : ''}`;
+    label.textContent = value;
+    
+    div.appendChild(checkbox);
     div.appendChild(label);
-    const parent=document.querySelector(".taskcreate");
-    parent.appendChild(div);
 
+    // Add drag event listeners
+    div.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', value);
+        div.classList.add('dragging');
+    });
+
+    div.addEventListener('dragend', () => {
+        div.classList.remove('dragging');
+    });
+    
+    return div;
 }
 
-//Delete button in TODO
+function updateColumnActions(columnClass, show) {
+    const column = document.querySelector(`.${columnClass}`);
+    const actions = column.querySelector('.column-actions');
+    const title = column.querySelector('.column-title');
+    const checkboxes = column.querySelectorAll('input[type="checkbox"]:checked');
+    
+    if (show && checkboxes.length > 0) {
+        actions.style.display = 'flex';
+        title.textContent = `${checkboxes.length} Selected`;
+    } else {
+        actions.style.display = 'none';
+        title.textContent = columnClass === 'board-column:first-child' ? 'TO DO' : 'COMPLETED';
+        updateTaskCount();
+    }
+}
 
-function deleteTodo(){
-    const checkboxes=document.querySelectorAll(".taskcreate input[type=checkbox]");
-    const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-    selectedBoxes.forEach(checkbox=>{
-        const parentElement=checkbox.closest('li');
-        if (parentElement){
-            parentElement.remove();
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    reload();
+    
+    // Add task on Enter
+    const addInput = document.querySelector(".addingValue");
+    if (addInput) {
+        addInput.addEventListener("keydown", async (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                await addtask();
+            }
+        });
+    }
+    
+    // Setup drag and drop containers
+    const todoContainer = document.querySelector(".taskcreate");
+    const completedContainer = document.querySelector(".listele");
+
+    [todoContainer, completedContainer].forEach(container => {
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const draggingElement = document.querySelector('.dragging');
+            if (draggingElement) {
+                e.dataTransfer.dropEffect = 'move';
+                container.classList.add('drag-over');
+            }
+        });
+
+        container.addEventListener('dragleave', () => {
+            container.classList.remove('drag-over');
+        });
+    });
+
+    // Handle dropping in completed container
+    completedContainer.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        completedContainer.classList.remove('drag-over');
+        const taskText = e.dataTransfer.getData('text/plain');
+        const sourceElement = document.querySelector('.dragging');
+        
+        if (!taskText || !sourceElement) return;
+        
+        try {
+            const response = await axios.post("http://localhost:3001/markCompleted", { 
+                value: taskText 
+            });
+            
+            if (response.data.success || response.data === "sucess") {
+                const taskElement = createTaskElement(taskText, true);
+                completedContainer.appendChild(taskElement);
+                sourceElement.remove();
+                updateTaskCount();
+            } else {
+                throw new Error("Server returned unsuccessful response");
+            }
+        } catch (err) {
+            console.error("Error completing task:", err);
+            showAlert("Failed to move task. Please try again.");
+            // Revert the UI if the server request failed
+            if (sourceElement) {
+                sourceElement.classList.remove('dragging');
+            }
         }
-    })
+    });
 
-    const sub=document.querySelector('.todosub');
-    const deleteBtn=document.querySelector('.delete');
-    const completeBtn=document.querySelector('.complete');
-    sub.textContent='TO DO';
-    deleteBtn.style.display='none';
-    completeBtn.style.display='none';
+    // Handle dropping in todo container
+    todoContainer.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        todoContainer.classList.remove('drag-over');
+        const taskText = e.dataTransfer.getData('text/plain');
+        const sourceElement = document.querySelector('.dragging');
+        
+        if (!taskText || !sourceElement) return;
+        
+        try {
+            const response = await axios.post("http://localhost:3001/ReversetoTodo", { 
+                value: taskText 
+            });
+            
+            if (response.data.success || response.data === "sucess") {
+                const taskElement = createTaskElement(taskText, false);
+                todoContainer.appendChild(taskElement);
+                sourceElement.remove();
+                updateTaskCount();
+            } else {
+                throw new Error("Server returned unsuccessful response");
+            }
+        } catch (err) {
+            console.error("Error reversing task:", err);
+            showAlert("Failed to move task. Please try again.");
+            // Revert the UI if the server request failed
+            if (sourceElement) {
+                sourceElement.classList.remove('dragging');
+            }
+        }
+    });
 
+    // Existing checkbox event listeners
+    document.querySelector(".taskcreate").addEventListener("change", (event) => {
+        if (event.target.matches('input[type="checkbox"]')) {
+            const checkboxes = document.querySelectorAll(".taskcreate input[type=checkbox]:checked");
+            const actions = document.querySelector('.board-column:first-child .column-actions');
+            const title = document.querySelector('.todosub');
+            
+            if (checkboxes.length > 0) {
+                actions.style.display = 'flex';
+                title.textContent = `${checkboxes.length} Selected`;
+            } else {
+                actions.style.display = 'none';
+                title.textContent = "TO DO";
+                updateTaskCount();
+            }
+        }
+    });
+    
+    document.querySelector(".listele").addEventListener("change", (event) => {
+        if (event.target.matches('input[type="checkbox"]')) {
+            const checkboxes = document.querySelectorAll(".listele input[type=checkbox]:checked");
+            const actions = document.querySelector('.board-column:last-child .column-actions');
+            const title = document.querySelector('.completesub');
+            
+            if (checkboxes.length > 0) {
+                actions.style.display = 'flex';
+                title.textContent = `${checkboxes.length} Selected`;
+            } else {
+                actions.style.display = 'none';
+                title.textContent = "COMPLETED";
+                updateTaskCount();
+            }
+        }
+    });
+});
+
+async function addtask() {
+    const input = document.querySelector(".addingValue");
+    const value = input.value.trim();
+    
+    if (!value) {
+        showAlert("Please enter a task");
+        return;
+    }
+    
+    try {
+        input.disabled = true;
+        const response = await axios.post("http://localhost:3001/add", { value });
+        
+        if (response.data === "sucess" || response.data.success) {
+            const taskElement = createTaskElement(value);
+            document.querySelector(".taskcreate").appendChild(taskElement);
+            input.value = "";
+            updateTaskCount();
+            
+            // Show empty state message if needed
+            const emptyState = document.querySelector(".taskcreate .empty-state");
+            if (emptyState) {
+                emptyState.remove();
+            }
+        } else {
+            throw new Error("Failed to add task");
+        }
+    } catch (error) {
+        console.error("Error adding task:", error);
+        showAlert(error.response?.data?.message || "Failed to add task. Please try again.");
+    } finally {
+        input.disabled = false;
+        input.focus();
+    }
 }
-//Complete button of Todo
- async function completeTodo(){
-    const checkboxes=document.querySelectorAll(".taskcreate input[type=checkbox]");
-    const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-for (const checkbox of selectedBoxes) { // Use a for...of loop for sequential processing
-    const label = checkbox.closest('label');
-    if (label) {
-        const truValue = label.textContent.trim(); // Get text content directly
 
-        if (truValue !== '') {
+async function completeTodo() {
+    try {
+        const checkboxes = document.querySelectorAll(".taskcreate input[type=checkbox]:checked");
+        if (checkboxes.length === 0) {
+            showAlert("Please select tasks to complete");
+            return;
+        }
+
+        for (const checkbox of checkboxes) {
+            const taskText = checkbox.nextElementSibling.textContent;
             try {
-                console.log("Posting completion for:", truValue);
-               
-                console.log("Deleting todo for:", truValue);
-                const responseDelete = await axios.post(`http://localhost:3001/markCompleted`,
-                    {       
-                            value:truValue
+                const response = await axios.post("http://localhost:3001/markCompleted", { 
+                    value: taskText 
+                });
+                
+                if (response.data.success || response.data === "sucess") {
+                    const taskElement = createTaskElement(taskText, true);
+                    document.querySelector(".listele").appendChild(taskElement);
+                    checkbox.closest('.task-item').remove();
                 }
-                );
-                console.log("Deletion response:", responseDelete.data);
-
-                // Create and append the new list item (consider doing this after all deletions if needed)
-                const div = document.createElement('li');
-                const newCheckbox = document.createElement('input');
-                newCheckbox.type = 'checkbox';
-                const newLabel = document.createElement("label");
-                newLabel.textContent = truValue;
-                newLabel.prepend(newCheckbox);
-                newCheckbox.onclick = ListeningCompleted; // Ensure ListeningCompleted is defined
-                newCheckbox.classList.add('forCheckbox');
-                div.appendChild(newLabel);
-                const parent = document.querySelector(".listele");
-                parent.appendChild(div);
-
-            } catch (error) {
-                console.error("Error processing todo:", truValue, error);
+            } catch (err) {
+                console.error("Error completing task:", taskText, err);
+                showAlert(`Failed to complete task: ${taskText}`);
             }
         }
+
+        document.querySelector('.todosub').textContent = "TO DO";
+        const actions = document.querySelector('.board-column:first-child .column-actions');
+        if (actions) actions.style.display = 'none';
+        updateTaskCount();
+        
+    } catch (error) {
+        showAlert(error.response?.data?.message || "Failed to complete tasks. Please try again.");
     }
 }
 
-// Call deleteTodo() after all selected boxes have been processed
-if (typeof deleteTodo === 'function') {
-    deleteTodo();
-} else {
-    console.warn("deleteTodo function is not defined.");
-}
-}
-function completedtask1(value){
-
-    const div=document.createElement('li');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    const label=document.createElement("label");
-   
-    label.textContent=value;
-    label.prepend(checkbox);
-    checkbox.onclick=ListeningTodo;
-    //checkbox.style.appearance='none';
-    checkbox.classList.add('forCheckbox')
-    div.appendChild(label);
-    const parent=document.querySelector(".listele");
-    parent.appendChild(div);
-
-}
-
-function ListeningCompleted(){
-    const deleteBtn=document.querySelector('.delete1');
-    const completeBtn=document.querySelector('.complete1');
-    deleteBtn.style.display='block';
-    completeBtn.style.display='block';
-    const checkboxes=document.querySelectorAll(".listele input[type=checkbox]");
-   const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-   const sub=document.querySelector('.completesub');
-   if (selectedBoxes.length==0){
-    sub.textContent="COMPLETED";
-    deleteBtn.style.display='none';
-    completeBtn.style.display='none';
-}else{
-    sub.textContent=`${selectedBoxes.length} Selected`;
-}
-}
-//function to remove elements from the completed tab
-async function deleteCompleted(){
-    const checkboxes=document.querySelectorAll(".listele input[type=checkbox]");
-    const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-    selectedBoxes.forEach(checkbox=>{
-        const parentElement=checkbox.closest('li');
-        if (parentElement){
-            parentElement.remove();
+async function reverse() {
+    try {
+        const checkboxes = document.querySelectorAll(".listele input[type=checkbox]:checked");
+        if (checkboxes.length === 0) {
+            showAlert("Please select tasks to reverse");
+            return;
         }
-    })
-  
-    const sub=document.querySelector('.completesub');
-    const deleteBtn=document.querySelector('.delete1');
-    const completeBtn=document.querySelector('.complete1');
-    sub.textContent='COMPLETED';
-    deleteBtn.style.display='none';
-    completeBtn.style.display='none';
 
-}
-//function to put elements back from completed tab to todo tab
-async function reverse(){
-    console.log("reverse");
-    const checkboxes=document.querySelectorAll(".listele input[type=checkbox]");
-    const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-    for (const checkbox of selectedBoxes) { // Use a for...of loop for sequential processing
-        const label = checkbox.closest('label');
-        if (label) {
-            const truValue = label.textContent.trim(); // Get text content directly
-    
-            if (truValue !== '') {
-                try {
-                    console.log("Posting completion for:", truValue);
-                    const responseComplete = await axios.post("http://localhost:3001/ReversetoTodo", 
-                        {
-                        value: truValue
-                        
-                    });
-                    console.log("Completion response:", responseComplete.data);
-    
-                    console.log("Deleting todo for:", truValue);
-                    // const responseDelete = await axios.delete(`http://localhost:3001/deleteComp`,
-                    //     {
-                            
-                    //             value:truValue
-                       
-                    // }
-                    // );
-            const div=document.createElement('li');
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            const label1=document.createElement("label");   
-            label1.textContent=truValue;
-            label1.prepend(checkbox);
-            checkbox.onclick=ListeningCompleted;
-            //checkbox.style.appearance='none';
-            checkbox.classList.add('forCheckbox')
-            div.appendChild(label1);
-            const parent=document.querySelector(".taskcreate");
-            parent.appendChild(div);
-           
-
-                }catch(error){
-                    console.error("Error processing todo:", truValue, error);
+        for (const checkbox of checkboxes) {
+            const taskText = checkbox.nextElementSibling.textContent;
+            try {
+                const response = await axios.post("http://localhost:3001/ReversetoTodo", { 
+                    value: taskText 
+                });
+                
+                if (response.data.success || response.data === "sucess") {
+                    const taskElement = createTaskElement(taskText, false);
+                    document.querySelector(".taskcreate").appendChild(taskElement);
+                    checkbox.closest('.task-item').remove();
                 }
-}
-        }
-    }
-    deleteCompleted();
-   
-}
-
-async function deleteCompButton(){
-    const checkboxes=document.querySelectorAll(".listele input[type=checkbox]");
-    const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-    for (const checkbox of selectedBoxes) { // Use a for...of loop for sequential processing
-        const label = checkbox.closest('label');
-        if (label) {
-            const truValue = label.textContent.trim(); // Get text content directly
-            if (truValue !== '') {
-                try {
-                   
-                    
-    
-                    console.log("Deleting completed for:", truValue);
-                    const responseDelete = await axios.post(`http://localhost:3001/deleteCompleted`,
-                    { 
-                                value:truValue
-                    }
-                    );
-                  
-                }catch(error){
-                    console.log("error occured while deleteing in completed");
-                }
+            } catch (err) {
+                console.error("Error reversing task:", taskText, err);
+                showAlert(`Failed to reverse task: ${taskText}`);
             }
         }
-    }
-    deleteCompleted();
-}
-async function deletetaskButton(){
-    const checkboxes=document.querySelectorAll(".taskcreate input[type=checkbox]");
-    const selectedBoxes=Array.from(checkboxes).filter(checkbox=>checkbox.checked);
-    for (const checkbox of selectedBoxes) { // Use a for...of loop for sequential processing
-        const label = checkbox.closest('label');
-        if (label) {
-            const truValue = label.textContent.trim(); // Get text content directly
-            if (truValue !== '') {
-                try {
-                   
-                    
-    
-                    console.log("Deleting todo for:", truValue);
-                    const responseDelete = await axios.post(`http://localhost:3001/deletetodo`,
-                        {
-                                value:truValue
 
-                    }
-                    );
-                  
-                }catch(error){
-                    console.log("error occured while deleteing in completed");
+        document.querySelector('.completesub').textContent = "COMPLETED";
+        const actions = document.querySelector('.board-column:last-child .column-actions');
+        if (actions) actions.style.display = 'none';
+        updateTaskCount();
+    } catch (error) {
+        showAlert(error.response?.data?.message || "Failed to reverse tasks. Please try again.");
+    }
+}
+
+async function deleteCompButton() {
+    try {
+        const checkboxes = document.querySelectorAll(".listele input[type=checkbox]:checked");
+        if (checkboxes.length === 0) {
+            showAlert("Please select completed tasks to delete");
+            return;
+        }
+
+        for (const checkbox of checkboxes) {
+            const taskText = checkbox.nextElementSibling.textContent;
+            try {
+                const response = await axios.post("http://localhost:3001/deleteCompleted", { 
+                    value: taskText 
+                });
+                
+                if (response.data.success || response.data === "success") {
+                    checkbox.closest('.task-item').remove();
                 }
+            } catch (err) {
+                console.error("Error deleting completed task:", taskText, err);
+                showAlert(`Failed to delete completed task: ${taskText}`);
+            }
+
+        }
+
+        document.querySelector('.completesub').textContent = "COMPLETED";
+        const actions = document.querySelector('.board-column:last-child .column-actions');
+        if (actions) actions.style.display = 'none';
+        updateTaskCount();
+    } catch (error) {
+        showAlert(error.response?.data?.message || "Failed to delete completed tasks. Please try again.");
+    }
+}
+
+async function deletetaskButton() {
+    try {
+        const checkboxes = document.querySelectorAll(".taskcreate input[type=checkbox]:checked");
+        if (checkboxes.length === 0) {
+            showAlert("Please select tasks to delete");
+            return;
+        }
+
+        for (const checkbox of checkboxes) {
+            const taskText = checkbox.nextElementSibling.textContent;
+            try {
+                const response = await axios.post("http://localhost:3001/deletetodo", { 
+                    value: taskText 
+                });
+                
+                if (response.data.success || response.data === "success") {
+                    checkbox.closest('.task-item').remove();
+                }
+            } catch (err) {
+                console.error("Error deleting task:", taskText, err);
+                showAlert(`Failed to delete task: ${taskText}`);
             }
         }
+
+        document.querySelector('.todosub').textContent = "TO DO";
+        const actions = document.querySelector('.board-column:first-child .column-actions');
+        if (actions) actions.style.display = 'none';
+        updateTaskCount();
+        
+    } catch (error) {
+        showAlert(error.response?.data?.message || "Failed to delete tasks. Please try again.");
     }
-    deleteTodo();
 }
 
-async function removeCookie(){
-    try{
-
-    const response=await axios.delete("/logout");
-        if(response.status==200){
+async function removeCookie() {
+    try {
+        const response = await axios.delete("/logout");
+        if (response.status === 200) {
             window.location.href = '/auth';
+        } else {
+            throw new Error("Logout failed");
         }
+    } catch (error) {
+        showAlert(error.response?.data?.message || error.message || "Failed to log out. Please try again.");
     }
-    catch(Error){
-        console.log(Error);
+}
 
-    }
+function updateTaskCount() {
+    const todoCount = document.querySelectorAll(".taskcreate .task-item").length;
+    const completedCount = document.querySelectorAll(".listele .task-item").length;
     
+    document.querySelector('.todosub').textContent = todoCount === 0 ? "TO DO" : `TO DO (${todoCount})`;
+    document.querySelector('.completesub').textContent = completedCount === 0 ? "COMPLETED" : `COMPLETED (${completedCount})`;
+    
+}
+
+async function reload() {
+    try {
+        // Get the container elements
+        const todoContainer = document.querySelector(".taskcreate");
+        const completedContainer = document.querySelector(".listele");
+        
+        // Show loading states
+        todoContainer.innerHTML = '<div class="empty-state">Loading tasks...</div>';
+        completedContainer.innerHTML = '<div class="empty-state">Loading completed tasks...</div>';
+        
+        // Fetch tasks
+        const response = await axios.get("http://localhost:3001/reload");
+        const tasks = response.data.message || [];
+        
+        // Clear containers
+        todoContainer.innerHTML = '';
+        completedContainer.innerHTML = '';
+        
+        // Count tasks
+        let todoCount = 0;
+        let completedCount = 0;
+        
+        // Process tasks
+        tasks.forEach(task => {
+            const taskElement = createTaskElement(task.message, task.done === "1");
+            if (task.done === "1") {
+                completedContainer.appendChild(taskElement);
+                completedCount++;
+            } else {
+                todoContainer.appendChild(taskElement);
+                todoCount++;
+            }
+        });
+        
+        // Handle empty states after processing all tasks
+        if (todoCount === 0) {
+            todoContainer.innerHTML = '<div class="empty-state">No tasks yet. Add your first task above!</div>';
+        }
+        
+        if (completedCount === 0) {
+            completedContainer.innerHTML = '<div class="empty-state">Complete some tasks to see them here</div>';
+        }
+        
+        // Update headers with counts
+        const todoHeader = document.querySelector('.todosub');
+        const completedHeader = document.querySelector('.completesub');
+        
+        todoHeader.textContent = todoCount === 0 ? "TO DO" : `TO DO (${todoCount})`;
+        completedHeader.textContent = completedCount === 0 ? "COMPLETED" : `COMPLETED (${completedCount})`;
+        
+    } catch (error) {
+        console.error("Error loading tasks:", error);
+        showAlert(error.response?.data?.message || "Failed to load tasks. Please try again.");
+        
+        // Show error states
+        document.querySelector(".taskcreate").innerHTML = '<div class="empty-state">Error loading tasks</div>';
+        document.querySelector(".listele").innerHTML = '<div class="empty-state">Error loading tasks</div>';
+    }
 }
 
 
