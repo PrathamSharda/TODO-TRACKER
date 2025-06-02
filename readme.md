@@ -22,20 +22,19 @@ This project is designed to learn template-based routing, along with integrating
 - **Bcrypt** for password hashing
 
 
-
-
-## signup (failing due to wrong input (email))
-![image](https://github.com/user-attachments/assets/fcc5098d-766a-459c-9188-4bee12d11efd)
-
+## page
+![image](https://github.com/user-attachments/assets/f9647408-eec3-4872-8b3a-600e6b598425)
 
 
 
 <br>
 
+## signup (failing due to wrong input (email))
+![image](https://github.com/user-attachments/assets/a229e3a8-d762-4199-851a-d5d6981c04c0)
 
 
-## sigin in 
-![image](https://github.com/user-attachments/assets/818aa030-c487-4f6d-abcc-67452d288b2f)
+![image](https://github.com/user-attachments/assets/91a2a36b-19f1-4100-bda6-462203f8d510)
+
 
 
 
@@ -44,7 +43,10 @@ This project is designed to learn template-based routing, along with integrating
 
 
 ## main site
-![image](https://github.com/user-attachments/assets/4e39b901-6c9a-4ab4-a4a0-2a1d52128704)
+![image](https://github.com/user-attachments/assets/452f3b56-d11c-4373-a63d-b507da4abae1)
+
+![image](https://github.com/user-attachments/assets/14b3fde1-94ac-4527-b2af-6476d9815807)
+
 
 
 
