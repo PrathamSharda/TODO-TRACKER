@@ -3,38 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taskify Frontend</title>
+    <title>Taskify - Sign Up</title>
     <link rel="stylesheet" href="/auth/style.css">
 </head>
 <body>
+    <div class="container">
+        <div class="auth-card">
+            <div class="logo">
+                <img src="https://api.iconify.design/fluent:task-list-square-24-filled.svg?color=%23FF7A59" alt="Logo">
+                <span class="logo-text">Taskify</span>
+            </div>
+            
+            <div class="auth-header">
+                <h1 class="auth-title">Create your account</h1>
+                <p class="auth-subtitle">Start managing your tasks effectively</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); signup();">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email address</label>
+                    <input type="email" id="email" class="form-input email" placeholder="name@company.com" required>
+                    <div class="error-message">Please enter a valid email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input pswd" placeholder="••••••••" required>
+                    <div class="error-message">Please enter a valid password</div>
+                    
+                    <div class="password-requirements">
+                        <div class="requirement" data-requirement="length">
+                            <span class="requirement-icon">✓</span>
+                            <span>At least 8 characters</span>
+                        </div>
+                        <div class="requirement" data-requirement="uppercase">
+                            <span class="requirement-icon">✓</span>
+                            <span>One uppercase letter</span>
+                        </div>
+                        <div class="requirement" data-requirement="lowercase">
+                            <span class="requirement-icon">✓</span>
+                            <span>One lowercase letter</span>
+                        </div>
+                        <div class="requirement" data-requirement="number">
+                            <span class="requirement-icon">✓</span>
+                            <span>One number</span>
+                        </div>
+                        <div class="requirement" data-requirement="special">
+                            <span class="requirement-icon">✓</span>
+                            <span>One special character</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-button">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="signin" class="auth-link">Sign in</a>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- start writing code -->
-     <div class="container">
-        
-        <div class="alert roboto ">
-            <label for="" class="inAlert"></label>
-            <button onclick=hide() class="alertBtn">okay</button>
-        </div>
-        <div class="box roboto">
-            <label class="signup ">Signup</label>
-            <div class="username fordisplay">
-                <label for="">Email:</label>
-                <input type="email" class="email"></input>
-            </div>
-            <div class="password fordisplay">
-                <label for="">
-                    Password:
-                </label>
-                <input type="password" class="pswd"></input>
-            </div>
-            <div class="btn">
-                <button onclick=signup() class="button">Signup</button>
-            </div>
-            <div class="signin">
-                <label for="">Already have an account <a href="signin">sign in</a></label>
-            </div>
-        </div>
-     </div>
-    <script src="/auth/script.js"></script>    
+    <script src="/auth/script.js"></script>
 </body>
 </html>
